@@ -16,12 +16,12 @@
 <body>
   <header class="app-header">
     <div class="brand"><span>◉</span><div><strong>MotoRoadbook</strong><small id="tourSubtitle">Il tuo assistente di viaggio</small></div></div>
-    <div class="mode-switch" role="tablist"><button class="active" data-view="plan">Pianifica</button><button data-view="ride">Guida</button></div>
+    <div class="mode-switch" role="tablist"><button class="active" data-view="plan">Pianifica</button><button data-view="ride">Tabella</button></div>
   </header>
 
   <main>
     <section id="planView" class="view active">
-      <div class="hero-card"><p class="eyebrow">TOUR ATTIVO</p><h1 id="tourName">Caricamento…</h1><p id="tourMeta"></p><div class="hero-actions"><button class="primary" id="openMaps">Apri rotta</button><button class="ghost" id="newTour">Nuovo tour</button><button class="ghost" id="importTour">Importa JSON</button></div></div>
+      <div class="hero-card"><p class="eyebrow">TOUR ATTIVO</p><h1 id="tourName">Caricamento…</h1><p id="tourMeta"></p><div class="hero-actions"><button class="primary" id="openMaps">Apri in Google Maps</button><button class="ghost" id="newTour">Nuovo tour</button><button class="ghost" id="importTour">Importa JSON</button><button class="danger" id="deleteTour">Elimina tour</button></div></div>
       <section class="tour-library"><div class="section-head"><div><p class="eyebrow">I MIEI TOUR</p><h2>Seleziona il prossimo viaggio</h2></div></div><div id="tourList" class="tour-list"></div></section>
       <section class="section-head"><div><p class="eyebrow">TABELLA DI MARCIA</p><h2>Tappe e punti d'interesse</h2></div><button class="round-add" id="addStop" aria-label="Aggiungi tappa">+</button></section>
       <div id="stopsList" class="stops-list"></div>
@@ -33,7 +33,7 @@
       <div class="map-fallback" id="mapFallback">Caricamento mappa…</div>
       <div class="hud top-hud"><span class="live-dot"></span><span id="scheduleStatus">In attesa di partenza</span></div>
       <div class="hud route-hud"><p>PROSSIMA TAPPA</p><h2 id="nextStop">—</h2><span id="nextDistance">Attiva GPS per distanza</span></div>
-      <div class="ride-controls"><button class="hud-button" id="centerMap">⌖ Centra</button><button class="hud-button" id="openMapsRide">Google Maps</button><button class="start-button" id="setDeparture">Imposta partenza</button></div>
+      <div class="ride-controls"><button class="hud-button" id="centerMap">⌖ Posizione</button><button class="hud-button" id="openMapsRide">Google Maps</button><button class="start-button" id="setDeparture">Orario partenza</button></div>
       <div id="gpsNotice" class="gps-notice" hidden></div>
     </section>
   </main>
