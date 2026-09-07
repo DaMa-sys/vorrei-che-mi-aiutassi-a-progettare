@@ -1,16 +1,37 @@
-const CACHE = 'motoroadbook-v7';
+const CACHE = 'motoroadbook-v8';
 const ASSETS = [
   './', './index.html', './style.css', './app.js', './manifest.json', './itinerari.json', './icon.svg',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
 ];
-self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
-self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
+
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
+});
+
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-    // Memorizza anche i tile già visualizzati: una zona percorsa resta disponibile offline.
-    if (new URL(event.request.url).origin === location.origin || /tile\.openstreetmap\.org$/.test(new URL(event.request.url).hostname)) { const copy = response.clone(); caches.open(CACHE).then(cache => cache.put(event.request, copy)); }
+  const url = new URL(event.request.url);
+  const isTile = /tile\.openstreetmap\.org$/.test(url.hostname);
+
+  // L'interfaccia cerca sempre prima la versione online; la cache resta il fallback offline.
+  if (!isTile) {
+    event.respondWith(fetch(event.request).then(response => {
+      const copy = response.clone();
+      caches.open(CACHE).then(cache => cache.put(event.request, copy));
+      return response;
+    }).catch(() => caches.match(event.request).then(hit => hit || caches.match('./index.html'))));
+    return;
+  }
+
+  // I tile già visualizzati restano invece disponibili anche senza connessione.
+  event.respondWith(caches.match(event.request).then(hit => hit || fetch(event.request).then(response => {
+    const copy = response.clone();
+    caches.open(CACHE).then(cache => cache.put(event.request, copy));
     return response;
-  }).catch(() => caches.match('./index.html'))));
+  })));
 });
