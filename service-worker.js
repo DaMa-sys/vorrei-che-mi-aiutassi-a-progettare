@@ -1,4 +1,4 @@
-const CACHE = 'motoroadbook-v2';
+const CACHE = 'motoroadbook-v3';
 const ASSETS = [
   './', './index.html', './style.css', './app.js', './manifest.json', './itinerari.json', './icon.svg',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',

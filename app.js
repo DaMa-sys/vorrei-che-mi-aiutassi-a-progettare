@@ -24,15 +24,18 @@ function renderPlan() {
   document.querySelectorAll('.edit-stop').forEach(b => b.onclick = () => openStop(Number(b.dataset.index)));
 }
 function esc(v='') { const el=document.createElement('div'); el.textContent=v; return el.innerHTML; }
+function openGoogleMaps() { if(tour.googleMapsUrl) window.open(tour.googleMapsUrl,'_blank','noopener'); else toast('Aggiungi il link Google Maps nelle impostazioni del tour'); }
 function typeName(t) { return ({waypoint:'Tappa',drone:'Spot drone',photo:'Foto panoramica',fuel:'Benzina',lunch:'Pranzo',coffee:'Caffè'})[t] || 'Tappa'; }
 function openTour() { const f=$('#tourForm'); ['name','date','departureTime','googleMapsUrl'].forEach(k=>f.elements[k].value=tour[k]||''); $('#dialogLabel').textContent='MODIFICA TOUR'; $('#tourDialog').showModal(); }
-function openStop(i=null) { editingStopIndex=i; const s=i===null?{durationMinutes:0,type:'waypoint'}:tour.stops[i]; const f=$('#stopForm'); ['name','targetTime','durationMinutes','lat','lng','type','notes'].forEach(k=>f.elements[k].value=s[k]??''); $('#stopDialogLabel').textContent=i===null?'NUOVO PUNTO':'MODIFICA PUNTO'; $('#stopDialog').showModal(); }
+function openStop(i=null) { editingStopIndex=i; const s=i===null?{durationMinutes:0,type:'waypoint'}:tour.stops[i]; const f=$('#stopForm'); ['name','targetTime','durationMinutes','lat','lng','type','notes'].forEach(k=>f.elements[k].value=s[k]??''); $('#stopDialogLabel').textContent=i===null?'NUOVO PUNTO':'MODIFICA PUNTO'; $('#deleteStop').hidden=i===null; $('#stopDialog').showModal(); }
 function bindEvents() {
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   $('#newTour').onclick=()=>{ tour={id:crypto.randomUUID(),name:'Nuovo tour in moto',date:'',departureTime:'08:30',googleMapsUrl:'',stops:[]}; tours.push(tour); activeTourId=tour.id; save(); openTour(); };
-  $('#addStop').onclick=()=>openStop(); $('#importTour').onclick=()=>$('#jsonDialog').showModal(); $('#openMaps').onclick=()=>tour.googleMapsUrl ? window.open(tour.googleMapsUrl,'_blank','noopener') : toast('Aggiungi prima un link Google Maps');
+  $('#addStop').onclick=()=>openStop(); $('#importTour').onclick=()=>$('#jsonDialog').showModal(); $('#openMaps').onclick=openGoogleMaps; $('#openMapsRide').onclick=openGoogleMaps;
+  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.close).close());
   $('#tourForm').onsubmit=e=>{ e.preventDefault(); const d=Object.fromEntries(new FormData(e.target)); Object.assign(tour,d); $('#tourDialog').close(); save(); toast('Tour salvato'); };
   $('#stopForm').onsubmit=e=>{ e.preventDefault(); const d=Object.fromEntries(new FormData(e.target)); d.durationMinutes=Number(d.durationMinutes)||0; d.lat=d.lat===''?null:Number(d.lat); d.lng=d.lng===''?null:Number(d.lng); if(editingStopIndex===null) tour.stops.push(d); else tour.stops[editingStopIndex]=d; $('#stopDialog').close(); save(); toast('Punto salvato'); };
+  $('#deleteStop').onclick=()=>{ if(editingStopIndex===null)return; if(confirm(`Eliminare “${tour.stops[editingStopIndex].name}”?`)){tour.stops.splice(editingStopIndex,1);$('#stopDialog').close();save();toast('Tappa eliminata');} };
   $('#jsonForm').onsubmit=e=>{ e.preventDefault(); try { let parsed=JSON.parse(new FormData(e.target).get('json')); if(Array.isArray(parsed)) parsed=parsed[0]; if(!parsed || !Array.isArray(parsed.stops)) throw Error('Manca la lista “stops”.'); tour={...parsed,id:crypto.randomUUID()}; tours.push(tour); activeTourId=tour.id; $('#jsonDialog').close(); save(); toast('Nuovo itinerario importato'); } catch(err) { $('#jsonError').textContent=`JSON non valido: ${err.message}`; } };
   $('#setDeparture').onclick=()=>{ $('#departureForm').elements.realTime.value=currentTime(); $('#departureDialog').showModal(); };
   $('#departureForm').onsubmit=e=>{ e.preventDefault(); tour.realDepartureTime=new FormData(e.target).get('realTime'); $('#departureDialog').close(); save(); updateHud(); toast('Tabella di marcia aggiornata'); };
