@@ -1,0 +1,13 @@
+{
+  "name": "Dolomiti: passi e panorami",
+  "date": "2026-09-20",
+  "departureTime": "08:30",
+  "googleMapsUrl": "https://www.google.com/maps/dir/Canazei/Passo+Pordoi/Passo+Sella/Ortisei",
+  "stops": [
+    {"name":"Canazei · partenza","targetTime":"08:30","durationMinutes":0,"lat":46.4769,"lng":11.7713,"type":"waypoint","notes":"Controllo benzina e attrezzatura. Via alle 08:30."},
+    {"name":"Passo Pordoi","targetTime":"09:05","durationMinutes":15,"lat":46.4881,"lng":11.8127,"type":"photo","notes":"Luce ottima verso il Sass Pordoi. Fermata fotografica sul lato valle."},
+    {"name":"Belvedere del Sella","targetTime":"10:05","durationMinutes":20,"lat":46.5062,"lng":11.7634,"type":"drone","notes":"Verifica il divieto di volo e il vento prima del decollo. Decollo lontano dalla strada."},
+    {"name":"Arabba · rifornimento","targetTime":"11:05","durationMinutes":10,"lat":46.4980,"lng":11.8751,"type":"fuel","notes":"Rifornimento rapido prima di risalire verso il Falzarego."},
+    {"name":"Rifugio con vista","targetTime":"12:30","durationMinutes":60,"lat":46.5328,"lng":12.0094,"type":"lunch","notes":"Pranzo leggero; ripartenza prevista alle 13:30."}
+  ]
+}

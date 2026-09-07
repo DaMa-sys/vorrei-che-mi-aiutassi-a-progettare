@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MotoRoadbook">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQZjV0w8KwxNu9c0u01G53h1hGgEaqM=" crossorigin="">
+  <link rel="stylesheet" href="style.css">
+  <title>MotoRoadbook</title>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand"><span>◉</span><div><strong>MotoRoadbook</strong><small id="tourSubtitle">Il tuo assistente di viaggio</small></div></div>
+    <div class="mode-switch" role="tablist"><button class="active" data-view="plan">Pianifica</button><button data-view="ride">Guida</button></div>
+  </header>
+
+  <main>
+    <section id="planView" class="view active">
+      <div class="hero-card"><p class="eyebrow">TOUR ATTIVO</p><h1 id="tourName">Caricamento…</h1><p id="tourMeta"></p><div class="hero-actions"><button class="primary" id="openMaps">Apri rotta</button><button class="ghost" id="newTour">Nuovo tour</button><button class="ghost" id="importTour">Importa JSON</button></div></div>
+      <section class="section-head"><div><p class="eyebrow">TABELLA DI MARCIA</p><h2>Tappe e punti d'interesse</h2></div><button class="round-add" id="addStop" aria-label="Aggiungi tappa">+</button></section>
+      <div id="stopsList" class="stops-list"></div>
+      <section class="notes-panel"><p class="eyebrow">STRUMENTI</p><div class="tool-grid"><button id="exportTour">Esporta backup</button><label class="file-button">Carica file<input id="fileInput" type="file" accept="application/json"></label><button id="resetDemo">Ripristina demo</button></div></section>
+    </section>
+
+    <section id="rideView" class="view">
+      <div id="map"></div>
+      <div class="map-fallback" id="mapFallback">Caricamento mappa…</div>
+      <div class="hud top-hud"><span class="live-dot"></span><span id="scheduleStatus">In attesa di partenza</span></div>
+      <div class="hud route-hud"><p>PROSSIMA TAPPA</p><h2 id="nextStop">—</h2><span id="nextDistance">Attiva GPS per distanza</span></div>
+      <div class="ride-controls"><button class="hud-button" id="centerMap">⌖ Centra</button><button class="start-button" id="setDeparture">Imposta partenza</button></div>
+      <div id="gpsNotice" class="gps-notice" hidden></div>
+    </section>
+  </main>
+
+  <dialog id="tourDialog"><form method="dialog" id="tourForm" class="dialog-card"><button class="close" value="cancel" aria-label="Chiudi">×</button><p class="eyebrow" id="dialogLabel">NUOVO TOUR</p><h2 id="dialogTitle">Dettagli del tour</h2><label>Nome<input required name="name" placeholder="Es. Dolomiti in moto"></label><label>Data<input name="date" type="date"></label><label>Partenza prevista<input required name="departureTime" type="time" value="08:30"></label><label>Link Google Maps<input name="googleMapsUrl" type="url" placeholder="https://maps.google.com/…"></label><menu><button value="cancel" class="ghost">Annulla</button><button value="default" class="primary" id="saveTour">Salva tour</button></menu></form></dialog>
+  <dialog id="stopDialog"><form method="dialog" id="stopForm" class="dialog-card"><button class="close" value="cancel" aria-label="Chiudi">×</button><p class="eyebrow" id="stopDialogLabel">NUOVA TAPPA</p><h2>Dettaglio punto</h2><label>Nome<input required name="name" placeholder="Nome della tappa"></label><div class="two-cols"><label>Orario target<input required name="targetTime" type="time"></label><label>Durata / pausa (min)<input required name="durationMinutes" type="number" min="0" value="0"></label></div><div class="two-cols"><label>Latitudine<input required name="lat" type="number" step="any" placeholder="46.49"></label><label>Longitudine<input required name="lng" type="number" step="any" placeholder="11.35"></label></div><label>Tipo<select name="type"><option value="waypoint">📍 Tappa</option><option value="drone">🚁 Spot Drone</option><option value="photo">📸 Foto panoramica</option><option value="fuel">⛽ Benzina</option><option value="lunch">🍝 Pranzo</option><option value="coffee">☕ Caffè</option></select></label><label>Note tattiche<textarea name="notes" rows="3" placeholder="Cosa ricordare in questo punto"></textarea></label><menu><button value="cancel" class="ghost">Annulla</button><button value="default" class="primary" id="saveStop">Salva punto</button></menu></form></dialog>
+  <dialog id="jsonDialog"><form method="dialog" id="jsonForm" class="dialog-card"><button class="close" value="cancel" aria-label="Chiudi">×</button><p class="eyebrow">IMPORTAZIONE RAPIDA</p><h2>Incolla un tour JSON</h2><p class="hint">Usa la stessa struttura del file <code>itinerari.json</code>, oppure un singolo oggetto tour.</p><textarea name="json" rows="12" required placeholder='{"name":"…", "stops":[…]}'></textarea><div id="jsonError" class="form-error"></div><menu><button value="cancel" class="ghost">Annulla</button><button value="default" class="primary" id="saveJson">Importa</button></menu></form></dialog>
+  <dialog id="departureDialog"><form method="dialog" id="departureForm" class="dialog-card compact"><p class="eyebrow">ORARIO REALE</p><h2>Quando sei partito?</h2><label>Partenza effettiva<input name="realTime" type="time" required></label><p class="hint">Gli orari della marcia verranno ricalcolati rispetto a questo scostamento.</p><menu><button value="cancel" class="ghost">Annulla</button><button value="default" class="primary" id="saveDeparture">Aggiorna</button></menu></form></dialog>
+  <div id="toast" role="status"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
